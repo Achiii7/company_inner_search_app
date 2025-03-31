@@ -5,6 +5,9 @@
 ############################################################
 # ライブラリの読み込み
 ############################################################
+
+import pandas as pd # 追加：CSV整形用に使用
+from langchain.schema import Document # 追加：CSV整形用に使用
 import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -31,6 +34,42 @@ load_dotenv()
 ############################################################
 # 関数定義
 ############################################################
+# （追加）社員名簿CSVを整形して、1ドキュメントとして返す
+def format_employee_csv(path: str) -> Document:
+    """
+    社員名簿CSVを整形して、1ドキュメントとして返す
+    """
+    import pandas as pd
+    from langchain.schema import Document
+
+    df = pd.read_csv(path)
+
+    records = []
+    for _, row in df.iterrows():
+        record = f"""社員ID: {row['社員ID']}
+部署: {row['部署']}
+氏名: {row['氏名（フルネーム）']}
+性別: {row['性別']}
+年齢: {row['年齢']}
+生年月日: {row['生年月日']}
+メールアドレス: {row['メールアドレス']}
+従業員区分: {row['従業員区分']}
+入社日: {row['入社日']}
+役職: {row['役職']}
+スキルセット: {row['スキルセット']}
+保有資格: {row['保有資格']}
+最終学歴: {row['大学名']} {row['学部・学科']}（卒業: {row['卒業年月日']}）
+"""
+        records.append(record)
+
+    merged_text = "\n---\n".join(records)
+
+    # ✅ 整形された社員情報を表示（デバッグ用）
+    #print("📄 統合された社員情報のテキスト:")
+    #print(merged_text)
+
+    return Document(page_content=merged_text, metadata={"source": "社員名簿.csv"})
+
 
 def initialize():
     """
@@ -213,9 +252,16 @@ def file_load(path, docs_all):
     # ファイル名（拡張子を含む）を取得
     file_name = os.path.basename(path)
 
-    # 想定していたファイル形式の場合のみ読み込む
-    if file_extension in ct.SUPPORTED_EXTENSIONS:
-        # ファイルの拡張子に合ったdata loaderを使ってデータ読み込み
+    # （修正）社員名簿.csv の特別処理
+    if file_extension == ".csv" and "社員名簿" in file_name:
+        try:
+            doc = format_employee_csv(path)  # Step2 で作成した関数を使用
+            docs_all.append(doc)
+        except Exception as e:
+            print(f"社員名簿の読み込みでエラーが発生しました: {e}")
+
+    # 既存の処理（他のファイル形式は今まで通り）
+    elif file_extension in ct.SUPPORTED_EXTENSIONS:
         loader = ct.SUPPORTED_EXTENSIONS[file_extension](path)
         docs = loader.load()
         docs_all.extend(docs)

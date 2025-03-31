@@ -40,15 +40,15 @@ APP_BOOT_MESSAGE = "アプリが起動されました。"
 # Retriever 設定
 # ==============================
 
-RETRIEVER_TOP_K = 5
+RETRIEVER_TOP_K = 10
 
 
 # ==============================
 # Text Splitter 設定
 # ==============================
 
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
+CHUNK_SIZE = 3000
+CHUNK_OVERLAP = 750
 CHUNK_SEPARATOR = "\n"
 
 
