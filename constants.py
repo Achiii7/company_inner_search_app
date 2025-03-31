@@ -66,7 +66,8 @@ RAG_TOP_FOLDER_PATH = "./data"
 SUPPORTED_EXTENSIONS = {
     ".pdf": PyMuPDFLoader,
     ".docx": Docx2txtLoader,
-    ".csv": lambda path: CSVLoader(path, encoding="utf-8")
+    ".csv": lambda path: CSVLoader(path, encoding="utf-8"),
+    ".txt": lambda path: TextLoader(path, encoding="utf-8") #.txtの拡張子を持つファイルを読み込むための設定を追加 
 }
 WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
